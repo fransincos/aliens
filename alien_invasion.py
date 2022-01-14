@@ -6,6 +6,10 @@ from settings import Settings
 
 from ship import Ship
 
+from bullet import Bullets
+
+from afterglow import Afterglow
+
 class AlienInvasion:
 	"""Overall class managing the big boy stuff: game assets and behavior"""
 
@@ -23,7 +27,10 @@ class AlienInvasion:
 		pygame.display.set_caption("Alien Invasion")
 
 		self.ship = Ship(self)
-
+		
+		self.bullets = pygame.sprite.Group()
+		
+		self.afterglows = pygame.sprite.Group()
 		#Backgound color
 		self.bg_color = (self.settings.bg_color)
 
@@ -33,9 +40,18 @@ class AlienInvasion:
 			self._check_events()
 			self._update_screen()
 			self.ship.update()
+			self._update_bullets()
+			self._update_afterglows()
 			#redraw the screen during each pass through the loop
 			self.screen.fill(self.bg_color)
 			self.ship.blitme()
+			for bullet in self.bullets.copy():
+				if bullet.rect.top <= 0:
+					self.bullets.remove(bullet)
+			for afterglow in self.afterglows.copy():
+				if afterglow.rect.top <= 700:
+					self.afterglows.remove(afterglow)
+			
 
 	def _check_events(self):
 		"""respond to keypresses and maus clicks"""
@@ -59,6 +75,10 @@ class AlienInvasion:
 			self.ship.moving_down = True
 		elif event.key == pygame.K_q:
 			sys.exit()
+		elif event.key == pygame.K_SPACE:
+			self._fire_bullet()
+			self._show_afterglow()
+
 	def _check_keyup_events(self, event):
 		"""respond to keyup events"""
 		if event.key == pygame.K_RIGHT:
@@ -70,11 +90,34 @@ class AlienInvasion:
 		elif event.key == pygame.K_DOWN:
 			self.ship.moving_down = False
 
+	def _fire_bullet(self):
+		"""fire the bullet!"""
+		if len(self.bullets) < self.settings.bullets_allowed:
+			new_bullet = Bullets(self)
+			self.bullets.add(new_bullet)
+
+	def _show_afterglow(self):
+		"""the boom boom behind the bullet"""
+		if len(self.afterglows) < self.settings.afterglows_allowed:
+			new_afterglow = Afterglow(self)
+			self.afterglows.add(new_afterglow)
+
+	def _update_afterglows(self):
+		"""update and get rid of boom boom effect"""
+		self.afterglows.update()
+
+	def _update_bullets(self):
+		"""update position of and get rid of bullets"""
+		self.bullets.update()
+
 	def _update_screen(self):
 		"""update the screen with every change"""
 		self.screen.fill(self.bg_color)
 		self.ship.blitme()
-
+		for bullet in self.bullets.sprites():
+			bullet.draw_bullet()
+		for afterglow in self.afterglows.sprites():
+			afterglow.draw_afterglow()
 		#the unintuitivley named update screen command
 		pygame.display.flip()
 
