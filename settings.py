@@ -26,7 +26,7 @@ class Settings:
 		
 		self.army_dropspeed = 5
 
-		self.speedup_scale = 1.2
+		self.speedup_scale = 1.3
 
 		self.score_scale = 1.5
 

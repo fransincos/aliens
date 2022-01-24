@@ -20,7 +20,7 @@ class Scoreboard:
 		self.text_color = (0, 0, 0)
 		self.font = pygame.font.SysFont('Corbel', 48)
 
-		self.prep_hiscore()
+		self.prep_high_score()
 		self.prep_score()
 		self.prep_level()
 		self.prep_ships()
@@ -36,15 +36,15 @@ class Scoreboard:
 		self.score_rect.right = self.screen_rect.right - 20
 		self.score_rect.top = 20
 
-	def prep_hiscore(self):
+	def prep_high_score(self):
 		"""render hiscore as img"""
-		hiscore = round(self.stats.hiscore, -1)
-		hiscore_str = "{:,}".format(hiscore)
-		self.hiscore_image = self.font.render(hiscore_str, True,
+		high_score = round(self.stats.high_score, -1)
+		high_score_str = "{:,}".format(high_score)
+		self.high_score_image = self.font.render(high_score_str, True,
 			self.text_color)
 
-		self.hiscore_rect = self.hiscore_image.get_rect()
-		self.hiscore_rect.midtop = self.screen_rect.midtop
+		self.high_score_rect = self.high_score_image.get_rect()
+		self.high_score_rect.midtop = self.screen_rect.midtop
 
 	def prep_level(self):
 		"""render the level ur on as an image"""
@@ -68,12 +68,12 @@ class Scoreboard:
 	def show_score(self):
 		"""display the score on the screen"""
 		self.screen.blit(self.score_image, self.score_rect)
-		self.screen.blit(self.hiscore_image, self.hiscore_rect)
+		self.screen.blit(self.high_score_image, self.high_score_rect)
 		self.screen.blit(self.level_image, self.level_rect)
 		self.ships.draw(self.screen)
 
-	def check_hiscore(self):
+	def check_high_score(self):
 		"""czech the high scoh"""
-		if self.stats.score > self.stats.hiscore:
-			self.stats.hiscore = self.stats.score
-			self.prep_hiscore()
+		if self.stats.score > self.stats.high_score:
+			self.stats.high_score = self.stats.score
+			self.prep_high_score()

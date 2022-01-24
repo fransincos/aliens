@@ -1,5 +1,7 @@
 import sys
 
+import json
+
 import pygame
 
 from settings import Settings
@@ -21,6 +23,8 @@ from scoreboard import Scoreboard
 from button import *
 
 from explosion import Explosion
+
+
 
 class AlienInvasion:
 	"""Overall class managing the big boy stuff: game assets and behavior"""
@@ -75,7 +79,7 @@ class AlienInvasion:
 		"""respond to keypresses and maus clicks"""
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
-				sys.exit()
+				self._close_game()
 			elif event.type == pygame.KEYDOWN:
 				self._check_keydown_events(event)
 				if event.key == pygame.K_SPACE:
@@ -103,7 +107,7 @@ class AlienInvasion:
 		elif event.key == pygame.K_DOWN:
 			self.ship.moving_down = True
 		elif event.key == pygame.K_q:
-			sys.exit()
+			self._close_game()
 		elif event.key == pygame.K_p:
 			self.settings.init_dynamic_settings()
 			self._start_game()
@@ -136,7 +140,7 @@ class AlienInvasion:
 		button_clicked = self.play_button.rect.collidepoint(mouse_pos)
 		if button_clicked and not self.stats.game_active:
 			self.settings.init_dynamic_settings()
-			
+			pygame.mouse.set_visible(False)
 			self._start_game()
 			
 	def _check_easy_button(self, mouse_pos):
@@ -193,7 +197,7 @@ class AlienInvasion:
 			sleep(0.5)
 		else:
 			self.stats.game_active = False
-
+			pygame.mouse.set_visible(True)
 	def _fire_bullet(self):
 		"""fire the bullet!"""
 		if len(self.bullets) < self.settings.bullets_allowed:
@@ -215,8 +219,9 @@ class AlienInvasion:
 
 	def _show_explosion(self):
 		"""BOOM"""
-		new_explosion = Explosion(self)
-		self.explosions.add(new_explosion)
+		self.new_explosion = Explosion(self)
+		self.explosions.add(self.new_explosion)
+		self.new_explosion.rect = self.new_explosion.get_rect()
 
 	def _update_bullets(self):       
 		"""update position of and get rid of bullets"""
@@ -240,13 +245,13 @@ class AlienInvasion:
 		if collisions:
 			for aliens in collisions.values():
 				self.stats.score += self.settings.alien_points * len(aliens)
-				self._show_explosion() 
+				 
 			
 			self.sb.prep_score()
-			self.sb.check_hiscore()
-			self._show_explosion()
-
+			self.sb.check_high_score()
 			
+								 
+				
 
 	
 	def _check_aliens_bottom(self):
@@ -327,7 +332,14 @@ class AlienInvasion:
 		#the unintuitivley named update screen command
 		pygame.display.flip()
 
+	def _close_game(self):
+		"""Save high score and exit."""
+		saved_high_score = self.stats.get_saved_high_score()
+		if self.stats.high_score > saved_high_score:
+			with open('high_score.json', 'w') as f:
+				json.dump(self.stats.high_score, f)
 
+		sys.exit()
 
 
 if __name__ == '__main__':
